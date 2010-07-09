@@ -132,7 +132,18 @@ module Searchlogic
         end
 
         def create_scoped_or(scopes, args)
-          lambda { |arg| where(scopes.map { |scope_item| scope_item.gsub(/_/, ' ') + ' ?'}.join(' OR '), args.first, args.first) }
+          lambda { |arg| where(create_scope(scopes), arg, arg) }
+        end
+
+        def create_scope(scopes)
+          complete_scopes = []
+          compelte_scope = scopes.map do |scope_item|
+            scope_item.gsub!(/_/, ' ')
+            scope_item.gsub!(/equals/, ' = ') if /equals/ =~ scope_item
+            scope_item += ' ?'
+            complete_scopes << scope_item
+          end
+          complete_scopes.join(" OR ")
         end
 
 				def merge_scopes_with_or(scopes)
