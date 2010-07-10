@@ -132,7 +132,21 @@ module Searchlogic
         end
 
         def create_scoped_or(scopes, args)
-          lambda { |arg| where(create_scope(scopes), arg, arg) }
+          lambda { |arg| where(create_scope(scopes), scope_modifier(arg, scopes[0]), scope_modifier(arg, scopes[1])) }
+        end
+
+        def scope_modifier(arg, scope)
+          modifier = scope.split(' ')[1].to_sym
+          case modifier
+          when :like
+            "%#{arg}%"
+          when :begins_with
+            "#{arg}%"
+          when :ends_with
+            "%#{arg}"
+          else
+            arg
+          end
         end
 
         def create_scope(scopes)
